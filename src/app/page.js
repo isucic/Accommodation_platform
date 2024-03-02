@@ -7,9 +7,8 @@ export default function Home() {
   return (
     <div className="items-center justify-between">
 
-      <Filters />
-
       <div className="md:mx-28">
+      <Filters />
         {data.map((d,index) => {
           return (
             <AccommodationCard id={d.id} />
