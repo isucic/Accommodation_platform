@@ -5,7 +5,7 @@ import { DateRange } from 'react-date-range';
 import { useState } from 'react';
 import data from '../json/data.json';
 
-const Filters = () => {
+const Filters = ({setFilteredData}) => {
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
@@ -39,44 +39,54 @@ const Filters = () => {
     const amenities = ["airConditioning", "parkingSpace", "pets", "pool", "wifi", "tv"];
 
     function handleCheckAvailability(startDate,endDate) {
-        data.map((d,index) => {
+        const filteredData = data.filter((d,index) => {
+
+            const sstartDate = new Date(startDate);
+            const eendDate = new Date(endDate);
+
             const availableInterval = d.availableDates.find(interval => {
                 const intervalStartDate = new Date(interval.intervalStart);
                 const intervalEndDate = new Date(interval.intervalEnd);
 
                 // Postavljanje vremena na 0 za usporedbu samo datuma
                 intervalStartDate.setHours(0, 0, 0, 0);
-                startDate.setHours(0, 0, 0, 0);
+                sstartDate.setHours(0, 0, 0, 0);
 
-                return (intervalStartDate <= startDate) && (endDate <= intervalEndDate);
+                return (intervalStartDate <= sstartDate) && (eendDate <= intervalEndDate);
             });
 
-            if(availableInterval){
-                console.log(`smjestaj je dostupan za ${d.title}`);
-                searchPrice(d,startDate,endDate);
-            }
-            else console.log(`smjestaj nije dostupan za ${d.title}`);
+            return availableInterval;
+            // if(availableInterval){
+            //     console.log(`smjestaj je dostupan za ${d.title}`);
+
+            //     const totalPrice = searchPrice(d,sstartDate,eendDate);
+            // }
         })
+        setFilteredData(filteredData);
     }
 
     function searchPrice(accommodation,startDate,endDate) {
+        const dateArray = [];
+        for(let date = startDate; date <= endDate; date.setDate(date.getDate() + 1)) {
+            dateArray.push(new Date(date))
+        }
+
         let totalPrice = 0;
 
-        accommodation.pricelistInEuros.forEach(interval => {
-            const intervalStartDate = new Date(interval.intervalStart);
-            const intervalEndDate = new Date(interval.intervalEnd);
-
-            if (intervalStartDate >= endDate || intervalEndDate <= startDate) {
-                return;
-            }
-            const start = Math.max(startDate, intervalStartDate);
-            const end = Math.min(endDate, intervalEndDate);
-            const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); // Razlika u noćenjima
-
-            console.log(nights);
-            totalPrice += nights * interval.pricePerNight;
+        dateArray.forEach(date => {
+            accommodation.pricelistInEuros.map(interval => {
+                const intervalStartDate = new Date(interval.intervalStart);
+                const intervalEndDate = new Date(interval.intervalEnd);
+                intervalEndDate.setHours(0, 0, 0, 0);
+                endDate.setHours(0, 0, 0, 0);
+    
+                if (intervalStartDate <= date && intervalEndDate > date) {
+                    totalPrice += interval.pricePerNight;
+                }
+            })
+            console.log(`Cijena za ${accommodation.title} je ${totalPrice}`)
         })
-        console.log(`Cijena je ${totalPrice} eura za ${accommodation.title}`)
+        return totalPrice;
     }
 
 

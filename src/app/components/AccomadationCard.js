@@ -7,7 +7,6 @@ import { MdOutlinePersonOutline } from "react-icons/md";
 function findAcc(data, id) {
     return data.find(obj => obj.id === id);
 }
-
 const AccommodationCard = ({id}) => {
     const foundAcc = findAcc(data, id);
 
