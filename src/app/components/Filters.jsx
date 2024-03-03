@@ -3,6 +3,7 @@ import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import { DateRange } from 'react-date-range';
 import { useState } from 'react';
+import data from '../json/data.json';
 
 const Filters = () => {
 
@@ -37,6 +38,48 @@ const Filters = () => {
 
     const amenities = ["airConditioning", "parkingSpace", "pets", "pool", "wifi", "tv"];
 
+    function handleCheckAvailability(startDate,endDate) {
+        data.map((d,index) => {
+            const availableInterval = d.availableDates.find(interval => {
+                const intervalStartDate = new Date(interval.intervalStart);
+                const intervalEndDate = new Date(interval.intervalEnd);
+
+                // Postavljanje vremena na 0 za usporedbu samo datuma
+                intervalStartDate.setHours(0, 0, 0, 0);
+                startDate.setHours(0, 0, 0, 0);
+
+                return (intervalStartDate <= startDate) && (endDate <= intervalEndDate);
+            });
+
+            if(availableInterval){
+                console.log(`smjestaj je dostupan za ${d.title}`);
+                searchPrice(d,startDate,endDate);
+            }
+            else console.log(`smjestaj nije dostupan za ${d.title}`);
+        })
+    }
+
+    function searchPrice(accommodation,startDate,endDate) {
+        let totalPrice = 0;
+
+        accommodation.pricelistInEuros.forEach(interval => {
+            const intervalStartDate = new Date(interval.intervalStart);
+            const intervalEndDate = new Date(interval.intervalEnd);
+
+            if (intervalStartDate >= endDate || intervalEndDate <= startDate) {
+                return;
+            }
+            const start = Math.max(startDate, intervalStartDate);
+            const end = Math.min(endDate, intervalEndDate);
+            const nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24)); // Razlika u noćenjima
+
+            console.log(nights);
+            totalPrice += nights * interval.pricePerNight;
+        })
+        console.log(`Cijena je ${totalPrice} eura za ${accommodation.title}`)
+    }
+
+
     return (
         <div className='my-4'>
             <div className='flex'>
@@ -62,7 +105,9 @@ const Filters = () => {
                      onChange={e => setGuests(e.target.value)}/>
                 </div>
 
-                <button className="hidden sm:block bg-blue-500 hover:bg-blue-700 text-white font-bold mx-4 px-4 rounded">
+                <button 
+                 onClick={() => handleCheckAvailability(startDate,endDate)}
+                 className="hidden sm:block bg-blue-500 hover:bg-blue-700 text-white font-bold mx-4 px-4 rounded">
                 Pretraži
                 </button> 
 
@@ -83,7 +128,9 @@ const Filters = () => {
             ))}
             </div>
 
-            <button className="sm:hidden block bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-1 rounded w-full justify-content items-center">
+            <button
+             onClick={() => handleCheckAvailability(startDate,endDate)}
+             className="sm:hidden block bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-1 rounded w-full justify-content items-center">
                 Pretraži
             </button> 
                   
