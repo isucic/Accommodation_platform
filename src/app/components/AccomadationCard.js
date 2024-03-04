@@ -1,13 +1,22 @@
+import { useState } from 'react';
 import data from '../json/data.json';
 import Image from "next/image";
 import { TbBeach } from "react-icons/tb";
 import { MdOutlinePersonOutline } from "react-icons/md";
+import Modal from './Modal';
 
 
 function findAcc(data, id) {
     return data.find(obj => obj.id === id);
 }
 const AccommodationCard = ({id}) => {
+
+      const [isOpen, setIsOpen] = useState(false);
+
+      const toggleModal = () => {
+        setIsOpen(!isOpen);
+      };
+
     const foundAcc = findAcc(data, id);
 
     return (
@@ -36,10 +45,12 @@ const AccommodationCard = ({id}) => {
             </div>
 
             <div className='absolute bottom-0 right-0 m-4'>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 lg:py-4 rounded">
-                Prikaži više
-            </button>
+                <button onClick={toggleModal} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 lg:py-4 rounded">
+                    Prikaži više
+                </button>
             </div>
+            <Modal isOpen={isOpen} onClose={toggleModal} id={id} />
+
           
             
         </div>
