@@ -20,6 +20,7 @@ const AccommodationCard = ({id}) => {
                     fill
                     style={{objectFit:"cover"}}
                     sizes="100%"
+                    priority
                     />
                 </div>
             </div>

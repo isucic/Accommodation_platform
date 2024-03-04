@@ -16,7 +16,7 @@ export default function Home() {
       <Filters setFilteredData={setFilteredData}/>
         {filteredData.map((d,index) => {
           return (
-            <AccommodationCard id={d.id} />
+            <AccommodationCard key={index} id={d.id} />
         )})}
       </div>
 

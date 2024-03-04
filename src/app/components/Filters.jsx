@@ -4,14 +4,16 @@ import 'react-date-range/dist/theme/default.css'; // theme css file
 import { DateRange } from 'react-date-range';
 import { useState } from 'react';
 import data from '../json/data.json';
+import { MdOutlineCancel } from "react-icons/md";
+
 
 const Filters = ({setFilteredData}) => {
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [show,setShow] = useState(false);
-    const [guests, setGuests] = useState();
     const [selectedAmenities, setSelectedAmenities] = useState([]);
+    const [numOfPeople, setNumOfPeople] = useState();
 
     const handleAmenityClick = (amenity) => {
         if (selectedAmenities.includes(amenity)) {
@@ -55,8 +57,20 @@ const Filters = ({setFilteredData}) => {
                 return (intervalStartDate <= sstartDate) && (eendDate <= intervalEndDate);
             });
 
-            return availableInterval;
-            // if(availableInterval){
+            if(availableInterval && (d.capacity >= numOfPeople || numOfPeople == null)){
+                //provjera amenties
+                for (let i =0; i < selectedAmenities.length; i++){
+                    const amenity = selectedAmenities[i];
+                    if(!d.amenities[amenity]) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            return false;
+
+            // if(availableInterval && d.capacity === numOfPeople){
             //     console.log(`smjestaj je dostupan za ${d.title}`);
 
             //     const totalPrice = searchPrice(d,sstartDate,eendDate);
@@ -74,7 +88,7 @@ const Filters = ({setFilteredData}) => {
         let totalPrice = 0;
 
         dateArray.forEach(date => {
-            accommodation.pricelistInEuros.map(interval => {
+            accommodation.pricelistInEuros.map((interval,index) => {
                 const intervalStartDate = new Date(interval.intervalStart);
                 const intervalEndDate = new Date(interval.intervalEnd);
                 intervalEndDate.setHours(0, 0, 0, 0);
@@ -87,6 +101,13 @@ const Filters = ({setFilteredData}) => {
             console.log(`Cijena za ${accommodation.title} je ${totalPrice}`)
         })
         return totalPrice;
+    }
+
+    function handleCancelAll() {
+        setSelectedAmenities([]);
+        setFilteredData(data);
+        setStartDate(new Date());
+        setEndDate(new Date());
     }
 
 
@@ -111,17 +132,15 @@ const Filters = ({setFilteredData}) => {
                      inputMode='numeric' 
                      size="1" 
                      type="number" 
-                     value={guests} 
-                     onChange={e => setGuests(e.target.value)}/>
+                     value={numOfPeople} 
+                     onChange={(e) => setNumOfPeople(e.target.value)}/>
                 </div>
 
                 <button 
                  onClick={() => handleCheckAvailability(startDate,endDate)}
-                 className="hidden sm:block bg-blue-500 hover:bg-blue-700 text-white font-bold mx-4 px-4 rounded">
+                 className="hidden sm:block bg-blue-500 hover:bg-blue-700 text-white font-bold ml-8 px-4 rounded">
                 Pretraži
-                </button> 
-
-
+                </button>
             </div>
 
             <div className='flex flex-wrap my-2'>
@@ -136,13 +155,18 @@ const Filters = ({setFilteredData}) => {
                     {amen}
                 </label>
             ))}
+            <button 
+                 onClick={() => handleCancelAll()}
+                 className="bg-blue-800 hover:bg-blue-700 text-sm text-white m-1 py-1 px-2 rounded">
+                Poništi sve
+                </button>
             </div>
 
             <button
              onClick={() => handleCheckAvailability(startDate,endDate)}
              className="sm:hidden block bg-blue-500 hover:bg-blue-700 text-white font-bold px-4 py-1 rounded w-full justify-content items-center">
                 Pretraži
-            </button> 
+            </button>
                   
         </div>
     )
