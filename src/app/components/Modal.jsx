@@ -7,7 +7,7 @@ import { TbBeach } from "react-icons/tb";
 
 
 
-const Modal = ({ isOpen, onClose, id }) => {
+const Modal = ({ isOpen, onClose, id, price }) => {
 
     const accom =  data.find(obj => obj.id === id);
 
@@ -49,12 +49,14 @@ const Modal = ({ isOpen, onClose, id }) => {
                         {Object.keys(accom.amenities).map((amenity,index, array) => {
                             if (accom.amenities[amenity]) {
                                 return <div className='flex'>
-                                    <p className="" key={amenity}>{amenity}</p>
+                                    <p key={amenity}>{amenity}</p>
                                     {index != array.length - 1 && <p className='mx-1'>◦</p>}
                                     </div>;
                             }
                             })} 
                         </div>
+
+                        <p>{price}</p>
 
                     </div>
             </div>

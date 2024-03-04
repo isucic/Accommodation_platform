@@ -4,16 +4,16 @@ import 'react-date-range/dist/theme/default.css'; // theme css file
 import { DateRange } from 'react-date-range';
 import { useState } from 'react';
 import data from '../json/data.json';
-import { MdOutlineCancel } from "react-icons/md";
 
-
-const Filters = ({setFilteredData}) => {
+const Filters = ({setFilteredData, onPriceWithIdChange }) => {
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [show,setShow] = useState(false);
     const [selectedAmenities, setSelectedAmenities] = useState([]);
     const [numOfPeople, setNumOfPeople] = useState();
+    const [priceWithId, setPriceWithId] = useState([]);
+
 
     const handleAmenityClick = (amenity) => {
         if (selectedAmenities.includes(amenity)) {
@@ -58,6 +58,12 @@ const Filters = ({setFilteredData}) => {
             });
 
             if(availableInterval && (d.capacity >= numOfPeople || numOfPeople == null)){
+                //vratiti ovo u parent i iz njega staviti u modal
+                const totalPrice = searchPrice(d,sstartDate,eendDate);
+                setPriceWithId(prevState =>  [...prevState, {id: d.id, price: totalPrice}]);
+                onPriceWithIdChange(priceWithId);
+
+
                 //provjera amenties
                 for (let i =0; i < selectedAmenities.length; i++){
                     const amenity = selectedAmenities[i];
@@ -69,15 +75,11 @@ const Filters = ({setFilteredData}) => {
             }
 
             return false;
-
-            // if(availableInterval && d.capacity === numOfPeople){
-            //     console.log(`smjestaj je dostupan za ${d.title}`);
-
-            //     const totalPrice = searchPrice(d,sstartDate,eendDate);
-            // }
         })
         setFilteredData(filteredData);
     }
+
+
 
     function searchPrice(accommodation,startDate,endDate) {
         const dateArray = [];
@@ -108,6 +110,7 @@ const Filters = ({setFilteredData}) => {
         setFilteredData(data);
         setStartDate(new Date());
         setEndDate(new Date());
+        setPriceWithId([]);
     }
 
 
